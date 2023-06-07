@@ -94,6 +94,13 @@ A `api_key` é uma chave de acesso guardada no banco de dados da API.
 	{
 		"status": 200,
 		"login": true
+		"session_token": "token",
+		"user": {
+			"name": "Nome",
+			"birth": "2000-10-10",
+			"cpf": "50012304010",
+			"is_validated": 2
+		}
 	}
 
 ## Verificação de sessão
