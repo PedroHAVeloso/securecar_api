@@ -14,6 +14,12 @@ Options -Indexes
     Deny from all
 </FilesMatch>
 
+<FilesMatch "\.(php|html|htm)$">
+    <IfModule mod_headers>
+        Header set Access-Control-Allow-Origin "*"
+    </IfModule>
+</FilesMatch>
+
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
