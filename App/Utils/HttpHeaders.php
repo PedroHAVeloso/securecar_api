@@ -11,6 +11,6 @@ class HttpHeaders
 
   public static function getAuthorization()
   {
-    return getallheaders()['Authorization'] ?? '';
+    return getAllHeaders()['Authorization'] ?? '';
   }
 }

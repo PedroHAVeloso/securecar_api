@@ -9,7 +9,9 @@ header('Content-Type: application/json; charset=utf-8');
 header("Access-Control-Allow-Methods: GET, PUT, POST, DELETE, PATCH, OPTIONS");
 header("Access-Control-Allow-Credentials: false");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
+header("Access-Control-Expose-Headers: *");
 
-// Routes::enterApi();
+Routes::enterApi();
+
 
 ?>

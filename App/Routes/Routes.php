@@ -6,13 +6,16 @@ use App\Repository\ApiToken;
 use App\Services\UserService;
 use App\Utils\ErrorReport;
 use App\Utils\HttpHeaders;
+use App\Utils\RequestMethod;
 
 class Routes
 {
   public static function enterApi()
   {
-    if (Routes::validateEntry()) {
-      Routes::defineRoute();
+    if (self::ignoreOptionRequest()) {
+      if (self::validateEntry()) {
+        self::defineRoute();
+      }
     }
   }
 
@@ -30,6 +33,15 @@ class Routes
     Route::delete('/user', function () {
       UserService::delete();
     });
+  }
+
+  public static function ignoreOptionRequest()
+  {
+    if (RequestMethod::getRequestMethod() == RequestMethod::METHOD_OPTIONS) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   public static function validateEntry()
