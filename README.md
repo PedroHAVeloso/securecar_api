@@ -15,8 +15,7 @@ O banco de dados da API está em `db_securecar.sql`.
 >- Fechamento de sessão.  
 
 > ## Ainda a implementar:
->- Filtragem dos dados recebidos pela API:
->-- Validação da data, códigos etc;
+>- Filtragem dos dados recebidos pela API (validação da data, códigos etc);
 >- Melhoria no tratamento de erros;
 >- Mudança de senha do usuário;
 >- Exclusão de usuário;
