@@ -2,7 +2,7 @@
 
 ### API do TCC SecureCar.
 - *Está em versão de teste*.
-- *v0.1.0-alpha*.
+- *v0.1.1-alpha*.
 
 As variáveis de ambiente estão contidas no `.env.example`. 
 O banco de dados da API está em `db_securecar.sql`.
