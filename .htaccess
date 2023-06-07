@@ -1,0 +1,21 @@
+Options +FollowSymlinks
+
+Options -Indexes
+
+<FilesMatch "\.env$">
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.json$">
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.lock$">
+    Deny from all
+</FilesMatch>
+
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule . - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule . index.php [L]
