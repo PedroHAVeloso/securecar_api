@@ -23,7 +23,8 @@ class Database
         . ':dbname=' . $env['DB_NAME']
         . ';host=' . $env['DB_HOST'],
         $env['DB_USER'],
-        $env['DB_PASS']
+        $env['DB_PASS'],
+        array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
       );
 
       return $connection;
