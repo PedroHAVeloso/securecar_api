@@ -2,7 +2,7 @@
 
 require_once 'vendor/autoload.php';
 
-use App\Routes\Routes;
+use App\Routes\Router;
 
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json; charset=utf-8');
@@ -11,7 +11,6 @@ header("Access-Control-Allow-Credentials: false");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
 header("Access-Control-Expose-Headers: *");
 
-Routes::enterApi();
-
+Router::enterApi();
 
 ?>

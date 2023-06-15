@@ -2,23 +2,23 @@
 
 namespace App\Repository;
 
-use App\Utils\ErrorReport;
+use App\Repository\ServerErrorRepository;
 use App\Utils\GenerateAleatoryString;
 use Exception;
 
-class UserSession extends Database
+class UserSessionRepository extends Database
 {
-  private static function generateSessionToken()
+  private static function generateSessionToken(): string
   {
     try {
-      $connection = self::connect();
-
       $loop = true;
       while ($loop) {
         $sessionToken = GenerateAleatoryString::generateAlphaNumeric(64);
 
-        $script = 'SELECT session_token FROM ' . self::USER_SESSIONS_TABLE . ' WHERE session_token = :session_token;';
-        $query = $connection->prepare($script);
+        $script = 'SELECT session_token FROM ' . self::USER_SESSIONS_TABLE .
+          ' WHERE session_token = :session_token;';
+
+        $query = self::$connection->prepare($script);
         $query->bindValue(':session_token', $sessionToken);
         $query->execute();
 
@@ -29,19 +29,16 @@ class UserSession extends Database
       }
 
       return $sessionToken;
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+
+      return '';
     }
   }
 
-  public static function createSession(?object $jsonData)
+  public static function createSession(string $email): array
   {
     try {
-      $connection = self::connect();
-
       $sessionToken = self::generateSessionToken();
 
       $script = '
@@ -54,49 +51,57 @@ class UserSession extends Database
         );
         ';
 
-      $query = $connection->prepare($script);
+      $query = self::$connection->prepare($script);
       $query->bindValue(':session_token', $sessionToken);
-      $query->bindValue(':email', $jsonData->email);
+      $query->bindValue(':email', $email);
       $query->execute();
 
-      return $sessionToken;
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
+      return [
+        'status' => 'OK',
+        'session_token' => $sessionToken
+      ];
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+      http_response_code(500);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
     }
   }
 
-  public static function checkSessionValidate(object $jsonData)
+  public static function checkSessionValidate($sessionToken)
   {
     try {
-      $sessionToken = $jsonData->session_token;
+      $script = 'SELECT session_token FROM ' .
+        self::USER_SESSIONS_TABLE .
+        ' WHERE session_token = :session_token;';
 
-      $connection = self::connect();
-
-      $script = 'SELECT session_token FROM ' . self::USER_SESSIONS_TABLE . ' WHERE session_token = :session_token;';
-      $query = $connection->prepare($script);
+      $query = self::$connection->prepare($script);
       $query->bindValue(':session_token', $sessionToken);
       $query->execute();
 
       if ($query->rowCount() > 0) {
+
         return [
-          'status' => 200,
+          'status' => 'OK',
           'valid' => true
         ];
       } {
+
         return [
-          'status' => 200,
+          'status' => 'OK',
           'valid' => false,
           'reason' => 'SESSION DOES NOT EXISTS'
         ];
       }
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+      http_response_code(500);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
     }
   }
 

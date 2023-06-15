@@ -11,37 +11,47 @@ use App\Utils\JsonData;
 
 class UserService
 {
-  public static function post()
+  public static function registerUser()
   {
     $jsonData = JsonData::getJsonData();
 
     if (UserController::checkRegisterData($jsonData)) {
       echo json_encode(UserAccount::registerUser($jsonData));
 
-    } elseif (UserController::checkLoginData($jsonData)) {
-      echo json_encode(UserAccount::loginUser($jsonData));
-
-    } elseif (UserController::checkSessionValidateData($jsonData)) {
-      echo json_encode(UserSession::checkSessionValidate($jsonData));
-
-    } else {
-      ErrorReport::displayErrorToUser(400, 'INCORRECT DATA');
     }
   }
 
-  public static function put()
+  public static function loginUser()
+  {
+    $jsonData = JsonData::getJsonData();
+
+    if (UserController::checkLoginData($jsonData)) {
+      echo json_encode(UserAccount::loginUser($jsonData));
+    }
+  }
+
+
+  public static function checkUserSessionValidate()
+  {
+    $jsonData = JsonData::getJsonData();
+    if (UserController::checkSessionValidateData($jsonData)) {
+      echo json_encode(UserSession::checkSessionValidate($jsonData));
+    }
+  }
+
+
+  public static function validateUser()
   {
     $jsonData = JsonData::getJsonData();
 
     if (UserController::checkValidateUserData($jsonData)) {
       echo json_encode(UserAccount::validateUser($jsonData));
-
     } else {
       ErrorReport::displayErrorToUser(400, 'INCORRECT DATA');
     }
   }
 
-  public static function delete()
+  public static function closeSession()
   {
     $jsonData = JsonData::getJsonData();
 

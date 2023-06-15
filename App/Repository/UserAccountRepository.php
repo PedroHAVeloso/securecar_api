@@ -6,58 +6,57 @@ use App\Utils\ErrorReport;
 use PDO;
 use Exception;
 
-class UserAccount extends Database
+/**
+ * Manipula o usuário no banco de dados.
+ */
+class UserAccountRepository extends Database
 {
-  public static function loginUser(object $jsonData)
+  public static function loginUser(string $email, string $password): array
   {
     try {
-      $connection = self::connect();
+      $userExists = self::checkUserExists($email);
+      if (!$userExists['exists']) {
+
+        return $userExists;
+      }
+
+      $userValidated = self::checkUserValidated($email);
+      if (!$userValidated['validated']) {
+
+        return $userValidated;
+      }
 
       $script =
-        'SELECT name, birth, cpf, is_validated FROM ' . self::USER_TABLE .
+        'SELECT name, birth, cpf FROM ' . self::USER_TABLE .
         ' WHERE email = :email AND password = :password;';
 
-      $query = $connection->prepare($script);
+      $query = self::$connection->prepare($script);
 
-      $query->bindValue(':email', $jsonData->email);
-      $query->bindValue(':password', $jsonData->password);
+      $query->bindValue(':email', $email);
+      $query->bindValue(':password', $password);
 
       $query->execute();
 
       if ($query->rowCount() > 0) {
         $response = $query->fetch(PDO::FETCH_ASSOC);
+        $sessionToken = UserSessionRepository::createSession($jsonData);
 
-        if ($response['is_validated'] == 1) {
-          return [
+        $response =
+          [
             'status' => 200,
-            'login' => false,
-            'reason' => 'USER NOT VALIDATED'
+            'login' => true,
+            'session_token' => $sessionToken,
+            'user' => $response
           ];
-        } else {
-          $sessionToken = UserSession::createSession($jsonData);
 
-          $response =
-            [
-              'status' => 200,
-              'login' => true,
-              'session_token' => $sessionToken,
-              'user' => $response
-            ];
-
-          return $response;
-        }
-      } else {
-        return [
-          'status' => 200,
-          'login' => false,
-          'reason' => 'USER NOT FOUND'
-        ];
+        return $response;
+      } else{
+        
       }
+
     } catch (Exception $exc) {
       ServerError::addError($exc->getMessage());
       ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
     }
   }
 
@@ -188,6 +187,91 @@ class UserAccount extends Database
       ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
     } finally {
       self::close($connection);
+    }
+  }
+
+  public static function checkUserValidated(string $email): array
+  {
+    try {
+      if (self::checkUserExists($email)['exists']) {
+        $script =
+          'SELECT is_validated FROM ' . self::USER_TABLE .
+          ' WHERE email = :email;';
+
+        $query = self::$connection->prepare($script);
+
+        $query->bindValue(':email', $email);
+
+        $query->execute();
+
+        $userValidated = $query->fetch(PDO::FETCH_ASSOC);
+
+        if ($userValidated['is_validated']) {
+
+          return [
+            'status' => 'OK',
+            'validated' => true
+          ];
+        } else {
+
+          return [
+            'status' => 'OK',
+            'validated' => false,
+            'reason' => 'USER NOT VALIDATED'
+          ];
+        }
+      } else {
+
+        return [
+          'status' => 'OK',
+          'validated' => false,
+          'reason' => 'USER NOT FOUND'
+        ];
+      }
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+      http_response_code(500);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
+    }
+  }
+
+  public static function checkUserExists(string $email): array
+  {
+    try {
+      $script =
+        'SELECT email FROM ' . self::USER_TABLE .
+        ' WHERE email = :email;';
+
+      $query = self::$connection->prepare($script);
+
+      $query->bindValue(':email', $email);
+
+      $query->execute();
+
+      if ($query->rowCount() > 0) {
+
+        return [
+          'status' => 'OK',
+          'exists' => true
+        ];
+      } else {
+
+        return [
+          'status' => 'OK',
+          'exists' => false,
+          'reason' => 'USER NOT FOUND'
+        ];
+      }
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+      http_response_code(500);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
     }
   }
 }
