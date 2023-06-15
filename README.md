@@ -1,11 +1,9 @@
 # SecureCar REST API
 
-### API do TCC SecureCar.
+## API do TCC SecureCar.
 - *Está em versão de teste*.
-- *v0.1.1-alpha*.
+- *v0.1.2-alpha*.
 
-As variáveis de ambiente estão contidas no `.env.example`. 
-O banco de dados da API está em `db_securecar.sql`.
 
 > ## Funcionalidades atuais:
 >- Cadastro de usuário;
@@ -15,11 +13,20 @@ O banco de dados da API está em `db_securecar.sql`.
 >- Fechamento de sessão.  
 
 > ## Ainda a implementar:
->- Filtragem dos dados recebidos pela API (validação da data, códigos etc);
+>- Filtragem e validação dos dados recebidos pela API;
 >- Melhoria no tratamento de erros;
->- Mudança de senha do usuário;
+>- Modificações de dados do usuário;
 >- Exclusão de usuário;
->- Demais rotas e tabelas de acordo com o aplicativo SecureCar (ainda privado).
+>- Demais rotas de acordo com o aplicativo SecureCar (ainda privado).
+
+# Rodando a API
+As variáveis de ambiente estão contidas no `.env.example`. Serão responsáveis pela garantia da conexão com o banco de dados. Crie um novo arquivo `.env` e adicione-as.
+
+O banco de dados usado pela API está em `db_securecar.sql`.
+
+## Com o servidor web embutido do PHP
+
+	$ php -S localhost:5050
 
 # REST API
 
@@ -27,7 +34,7 @@ Descrição das funcionalidades da API.
 
 ### Url
 		
-	http://localhost/securecar_api/
+	http://localhost:5050/securecar_api/
 
 ### Autorização
 
@@ -35,27 +42,27 @@ Todas as Requests devem conter em seu `header`:
 
 	Authorization: api_key
 
-A `api_key` é uma chave de acesso guardada no banco de dados da API. 
+A `api_key` é uma chave de acesso armazenada no banco de dados. 
 	
 ## Cadastrar usuário
 
 #### Request 
 
-`POST /user`
+`POST /user/register`
 
 	{
-		"name":  "Nome",
-		"email":  "email@github.com",
-		"cpf":  "50012304010",
-		"birth":  "2000-10-10",
-		"password":  "Senha",
-		"validation_code":  1234
+		"name": string,
+		"email": string,
+		"cpf": string,
+		"birth": string,
+		"password": string,
+		"validation_code": int
 	}
 	
 #### Response OK
 
 	{
-		"status": 200,
+		"status": "OK",
 		"register": true,
 		"session_token": "token"
 	}
@@ -64,17 +71,17 @@ A `api_key` é uma chave de acesso guardada no banco de dados da API.
 
 #### Request
 
-`PUT /user`
+`PUT /user/validate`
 
 	{
-		"email": "email@github.com",
-		"validation_code": 1234
+		"email": string,
+		"validation_code": int
 	}
 	
 #### Response OK
 	
 	{
-		"status": 200,
+		"status": "OK",
 		"validate": true
 	}
 	
@@ -82,23 +89,23 @@ A `api_key` é uma chave de acesso guardada no banco de dados da API.
 
 #### Request
 
-`POST /user`
+`POST /user/login`
 
 	{
-		"email": "email@github.com",
-		"password": "Senha"
+		"email": string,
+		"password": string
 	}
 
 #### Response OK
 
 	{
-		"status": 200,
+		"status": "OK",
 		"login": true
 		"session_token": "token",
 		"user": {
-			"name": "Nome",
-			"birth": "2000-10-10",
-			"cpf": "50012304010",
+			"name": "name",
+			"birth": "yyyy-MM-dd",
+			"cpf": "10010010010",
 			"is_validated": 2
 		}
 	}
@@ -107,16 +114,16 @@ A `api_key` é uma chave de acesso guardada no banco de dados da API.
 
 #### Request
 
-`POST /user`
+`POST /user/check-session-validity`
 
 	{ 
-		"session_token": "token"
+		"session_token": string
 	}
 
 #### Response OK
 
 	{
-		"status": 200,
+		"status": "OK",
 		"valid": true
 	}
 
@@ -124,7 +131,7 @@ A `api_key` é uma chave de acesso guardada no banco de dados da API.
 
 #### Request
 
-`DELETE /user`
+`DELETE /user/close-session`
 
 	{
 		"session_token": "token"
@@ -133,6 +140,6 @@ A `api_key` é uma chave de acesso guardada no banco de dados da API.
 #### Response OK
 
 	{
-		"status": 200,
-		"closed": "YES"
+		"status": "OK,
+		"closed": true
 	}

@@ -7,41 +7,21 @@ use App\Utils\RequestUri;
 
 class Route
 {
-  public static function get(string $route, $function)
+  /**
+   * Função para a crição das rotas.
+   * 
+   * Verifica se a rota atual corresponde à rota da função.
+   * 
+   * @param string $method
+   * @param string $route
+   * @param mixed $function
+   * @return void
+   */
+  public static function createRoute(string $method, string $route, $function)
   {
     if (
       RequestUri::getRequestUri() == "/securecar_api$route" &&
-      RequestMethod::getRequestMethod() == RequestMethod::METHOD_GET
-    ) {
-      $function();
-    }
-  }
-
-  public static function post(string $route, $function)
-  {
-    if (
-      RequestUri::getRequestUri() == "/securecar_api$route" &&
-      RequestMethod::getRequestMethod() == RequestMethod::METHOD_POST
-    ) {
-      $function();
-    }
-  }
-
-  public static function delete(string $route, $function)
-  {
-    if (
-      RequestUri::getRequestUri() == "/securecar_api$route" &&
-      RequestMethod::getRequestMethod() == RequestMethod::METHOD_DELETE
-    ) {
-      $function();
-    }
-  }
-
-  public static function put(string $route, $function)
-  {
-    if (
-      RequestUri::getRequestUri() == "/securecar_api$route" &&
-      RequestMethod::getRequestMethod() == RequestMethod::METHOD_PUT
+      RequestMethod::getRequestMethod() == $method
     ) {
       $function();
     }

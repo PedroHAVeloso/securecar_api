@@ -4,29 +4,36 @@ namespace App\Repository;
 
 use Exception;
 
-class ServerError extends Database
+/**
+ * Manipula as mensagens de erro do servidor.
+ */
+class ServerErrorRepository extends Database
 {
-  private const ERROR_TABLE = 'tb_server_error_log';
-
+  /**
+   * Adiciona uma mensagem de erro no banco de dados
+   * para registro.
+   * 
+   * Retorna um [bool] informando a situação da inserção.
+   * 
+   * @param string $error
+   * @return bool
+   */
   public static function addError(string $error)
   {
     try {
-      $connection = self::connect();
-
       $script =
         'INSERT INTO ' . self::ERROR_TABLE .
         ' (error) VALUES (:error);';
 
-      $query = $connection->prepare($script);
+      $query = self::$connection->prepare($script);
       $query->bindValue(':error', $error);
 
       $query->execute();
 
       return true;
     } catch (Exception $exc) {
+
       return false;
-    } finally {
-      self::close($connection);
     }
   }
 }
