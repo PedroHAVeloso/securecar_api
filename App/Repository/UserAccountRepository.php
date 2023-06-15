@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Utils\ErrorReport;
 use PDO;
 use Exception;
 
@@ -84,6 +83,17 @@ class UserAccountRepository extends Database
     }
   }
 
+  /**
+   * Registra um novo usuário.
+   * 
+   * @param string $name
+   * @param string $birth
+   * @param string $cpf
+   * @param string $email
+   * @param string $password
+   * @param int $validationCode
+   * @return array
+   */
   public static function registerUser(
     string $name, string $birth,
     string $cpf, string $email,
@@ -143,7 +153,18 @@ class UserAccountRepository extends Database
     }
   }
 
-
+  /**
+   * Valida a conta do usuário.
+   * 
+   * Recebe o email e o código de validação do usuário para validar 
+   * sua conta.
+   * 
+   * Retorna um array com o campo booleano [validate].
+   * 
+   * @param string $email
+   * @param string $validationCode
+   * @return array
+   */
   public static function validateUser(string $email, string $validationCode)
   {
     try {
@@ -173,37 +194,53 @@ class UserAccountRepository extends Database
             ';
 
       $query = self::$connection->prepare($script);
-      $query->bindValue(':email', $jsonData->email);
+
+      $query->bindValue(':email', $email);
+
       $query->execute();
+
       $response = $query->fetch(PDO::FETCH_ASSOC);
-      if ($response['validation_code'] == $jsonData->validation_code) {
 
+      if ($response['validation_code'] == $validationCode) {
         $script = 'UPDATE ' . self::USER_TABLE . ' SET is_validated = 2 WHERE email = :email;';
-        $query = $connection->prepare($script);
 
-        $query->bindValue(':email', $jsonData->email);
+        $query = self::$connection->prepare($script);
+
+        $query->bindValue(':email', $email);
 
         $query->execute();
+
         return [
-          'status' => 200,
+          'status' => 'OK',
           'validate' => true
         ];
       } else {
+
         return [
-          'status' => 200,
+          'status' => 'OK',
           'validate' => false,
           'reason' => 'INVALID VALIDATION CODE'
         ];
       }
 
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+      http_response_code(500);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
     }
   }
 
+  /**
+   * Verifica se o usuário já foi validado ou não.
+   * 
+   * Retorna um array com o campo booleano [validated].
+   * 
+   * @param string $email
+   * @return array
+   */
   public static function checkUserValidated(string $email): array
   {
     try {
@@ -252,6 +289,15 @@ class UserAccountRepository extends Database
     }
   }
 
+  /**
+   * Realiza a verificação de existência de um usuário
+   * no banco de dados.
+   * 
+   * Retorna um array com o campo booleano [exist].
+   * 
+   * @param string $email
+   * @return array
+   */
   public static function checkUserExists(string $email): array
   {
     try {
@@ -269,13 +315,13 @@ class UserAccountRepository extends Database
 
         return [
           'status' => 'OK',
-          'exists' => true
+          'exist' => true
         ];
       } else {
 
         return [
           'status' => 'OK',
-          'exists' => false,
+          'exist' => false,
           'reason' => 'USER NOT FOUND'
         ];
       }

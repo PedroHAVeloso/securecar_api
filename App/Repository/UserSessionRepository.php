@@ -6,9 +6,18 @@ use App\Repository\ServerErrorRepository;
 use App\Utils\GenerateAleatoryString;
 use Exception;
 
+/**
+ * Manipula as sessões de usuário no banco de dados.
+ */
 class UserSessionRepository extends Database
 {
-  private static function generateSessionToken(): string
+
+  /**
+   * Gera um token não existente no banco para a API.
+   * 
+   * @return string|null
+   */
+  private static function generateSessionToken(): string|null
   {
     try {
       $loop = true;
@@ -32,10 +41,15 @@ class UserSessionRepository extends Database
     } catch (Exception $exception) {
       ServerErrorRepository::addError($exception);
 
-      return '';
+      return null;
     }
   }
 
+  /**
+   * Cria uma nova sessão para um usuário.
+   * @param string $email
+   * @return array
+   */
   public static function createSession(string $email): array
   {
     try {
@@ -70,7 +84,12 @@ class UserSessionRepository extends Database
     }
   }
 
-  public static function checkSessionValidate($sessionToken)
+  /**
+   * Verifica a validade de uma sessão de usuário.
+   * @param string $sessionToken
+   * @return array
+   */
+  public static function checkSessionValidate(string $sessionToken): array
   {
     try {
       $script = 'SELECT session_token FROM ' .
@@ -105,41 +124,41 @@ class UserSessionRepository extends Database
     }
   }
 
-  public static function closeSession(object $jsonData)
+  /**
+   * Exclui uma sessão de usuário.
+   * 
+   * @param string $jsonData
+   * @return array
+   */
+  public static function closeSession(string $sessionToken): array
   {
     try {
-      $sessionToken = $jsonData->session_token;
-
-      $connection = self::connect();
-
-      $script = 'SELECT session_token FROM ' . self::USER_SESSIONS_TABLE . ' WHERE session_token = :session_token;';
-      $query = $connection->prepare($script);
-      $query->bindValue(':session_token', $sessionToken);
-      $query->execute();
-
-      if ($query->rowCount() > 0) {
-        $script = 'DELETE FROM ' . self::USER_SESSIONS_TABLE . ' WHERE session_token = :session_token;';
-        $query = $connection->prepare($script);
-        $query->bindValue(':session_token', $sessionToken);
-        $query->execute();
+      $sessionValid = self::checkSessionValidate($sessionToken);
+      if (!$sessionValid['valid']) {
 
         return [
-          'status' => 200,
-          'closed' => 'YES'
-        ];
-      } {
-        return [
-          'status' => 200,
-          'closed' => 'NO',
+          'status' => 'OK',
+          'closed' => false,
           'reason' => 'SESSION DOES NOT EXISTS'
         ];
       }
 
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
+      $script = 'DELETE FROM ' . self::USER_SESSIONS_TABLE . ' WHERE session_token = :session_token;';
+      $query = self::$connection->prepare($script);
+      $query->bindValue(':session_token', $sessionToken);
+      $query->execute();
+
+      return [
+        'status' => 'OK',
+        'closed' => true
+      ];
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+      http_response_code(500);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
     }
   }
 

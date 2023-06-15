@@ -2,14 +2,16 @@
 
 namespace App\Routes;
 
-use App\Repository\ApiToken;
+use App\Repository\ApiTokenRepository;
 use App\Services\UserService;
-use App\Utils\ErrorReport;
 use App\Utils\HttpHeaders;
 use App\Utils\RequestMethod;
 
 class Router extends Route
 {
+  /**
+   * Inicia a conexão com a API.
+   */
   public static function enterApi()
   {
     if (self::ignoreOptionRequest()) {
@@ -21,13 +23,17 @@ class Router extends Route
     }
   }
 
+  /**
+   * Define a rota a partir da URI atual.
+   * @return void
+   */
   public static function defineRoute()
   {
     self::createRoute(
       RequestMethod::METHOD_POST,
       '/user/register',
       function () {
-        // TODO
+        UserService::registerUser();
       }
     );
 
@@ -35,7 +41,7 @@ class Router extends Route
       RequestMethod::METHOD_PUT,
       '/user/validate-user',
       function () {
-        // TODO
+        UserService::validateUser();
       }
     );
 
@@ -43,19 +49,32 @@ class Router extends Route
       RequestMethod::METHOD_POST,
       '/user/login',
       function () {
-        // TODO: 
+        UserService::loginUser();
       }
     );
 
     self::createRoute(
       RequestMethod::METHOD_POST,
-      '/user/login',
+      '/user/check-session-validity',
       function () {
-        UserService::post();
+        UserService::checkUserSessionValidity();
+      }
+    );
+
+    self::createRoute(
+      RequestMethod::METHOD_DELETE,
+      '/user/close-session',
+      function () {
+        UserService::closeSession();
       }
     );
   }
 
+  /**
+   * Ignora o Request Option, evitando erros
+   * durante requisições.
+   * @return bool
+   */
   public static function ignoreOptionRequest(): bool
   {
     if (RequestMethod::getRequestMethod() == RequestMethod::METHOD_OPTIONS) {
@@ -65,10 +84,15 @@ class Router extends Route
     }
   }
 
+  /**
+   * Valida o a authorization informado na requisição para uso
+   * da API.
+   * @return bool|array
+   */
   public static function validateEntry(): bool|array
   {
     $authorization = HttpHeaders::getAuthorization();
-    $authorization = ApiToken::checkApiTokenValidity($authorization);
+    $authorization = ApiTokenRepository::checkApiTokenValidity($authorization);
 
     if ($authorization == 200) {
       return true;

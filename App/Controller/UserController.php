@@ -4,6 +4,11 @@ namespace App\Controller;
 
 use App\Utils\JsonData;
 
+/**
+ * Controla os dados para as respectivas funções da API.
+ * 
+ * TODO: A verificação dos dados precisa ser implementada.
+ */
 class UserController
 {
   public static function checkLoginData(?object $jsonData)

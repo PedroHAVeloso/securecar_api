@@ -1,11 +1,9 @@
 # SecureCar REST API
 
-### API do TCC SecureCar.
+## API do TCC SecureCar.
 - *Está em versão de teste*.
-- *v0.1.1-alpha*.
+- *v0.1.2-alpha*.
 
-As variáveis de ambiente estão contidas no `.env.example`. 
-O banco de dados da API está em `db_securecar.sql`.
 
 > ## Funcionalidades atuais:
 >- Cadastro de usuário;
@@ -15,11 +13,16 @@ O banco de dados da API está em `db_securecar.sql`.
 >- Fechamento de sessão.  
 
 > ## Ainda a implementar:
->- Filtragem dos dados recebidos pela API (validação da data, códigos etc);
+>- Filtragem e validação dos dados recebidos pela API;
 >- Melhoria no tratamento de erros;
->- Mudança de senha do usuário;
+>- Modificações de dados do usuário;
 >- Exclusão de usuário;
->- Demais rotas e tabelas de acordo com o aplicativo SecureCar (ainda privado).
+>- Demais rotas de acordo com o aplicativo SecureCar (ainda privado).
+
+# Instalação
+As variáveis de ambiente estão contidas no `.env.example`. Serão responsáveis pela garantia da conexão com o banco de dados.
+
+O banco de dados usado pela API está em `db_securecar.sql`.
 
 # REST API
 
