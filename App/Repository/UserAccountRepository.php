@@ -17,13 +17,21 @@ class UserAccountRepository extends Database
       $userExists = self::checkUserExists($email);
       if (!$userExists['exists']) {
 
-        return $userExists;
+        return [
+          'status' => 'OK',
+          'login' => false,
+          'reason' => 'USER NOT FOUND'
+        ];
       }
 
       $userValidated = self::checkUserValidated($email);
       if (!$userValidated['validated']) {
 
-        return $userValidated;
+        return [
+          'status' => 'OK',
+          'login' => false,
+          'reason' => 'USER NOT VALIDATED'
+        ];
       }
 
       $script =
@@ -39,149 +47,145 @@ class UserAccountRepository extends Database
 
       if ($query->rowCount() > 0) {
         $response = $query->fetch(PDO::FETCH_ASSOC);
-        $sessionToken = UserSessionRepository::createSession($jsonData);
 
-        $response =
-          [
-            'status' => 200,
-            'login' => true,
-            'session_token' => $sessionToken,
-            'user' => $response
-          ];
+        $sessionToken = UserSessionRepository::createSession($email);
 
-        return $response;
-      } else{
-        
+        return [
+          'status' => 'OK',
+          'login' => true,
+          'session_token' => $sessionToken,
+          'user' => $response
+        ];
+      } else {
+
+        return [
+          'status' => 'OK',
+          'login' => false,
+          'reason' => 'INVALID EMAIL OR PASSWORD'
+        ];
       }
 
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+
+      return [
+        'status' => 'SERVER ERROR',
+      ];
     }
   }
 
-  public static function registerUser(object $jsonData)
-  {
+  public static function registerUser(
+    string $name, string $birth,
+    string $cpf, string $email,
+    string $password, int $validationCode
+  ) {
     try {
-      $connection = self::connect();
+      $userExists = self::checkUserExists($email);
+      if ($userExists['exist']) {
 
-      $script = 'SELECT email FROM ' . self::USER_TABLE . ' WHERE email = :email;';
-
-      $query = $connection->prepare($script);
-      $query->bindValue(':email', $jsonData->email);
-      $query->execute();
-
-      if ($query->rowCount() > 0) {
         return [
-          'status' => 200,
+          'status' => 'OK',
           'register' => false,
           'reason' => 'USER ALREADY EXISTS'
         ];
-      } else {
-        $script =
-          'INSERT INTO ' . self::USER_TABLE .
-          ' (name, birth, cpf, email, password)
+      }
+
+      $script =
+        'INSERT INTO ' . self::USER_TABLE .
+        ' (name, birth, cpf, email, password)
           VALUES (:name, :birth, :cpf, :email, :password);';
 
-        $query = $connection->prepare($script);
+      $query = self::$connection->prepare($script);
 
-        $query->bindValue(':name', $jsonData->name);
-        $query->bindValue(':birth', $jsonData->birth);
-        $query->bindValue(':cpf', $jsonData->cpf);
-        $query->bindValue(':email', $jsonData->email);
-        $query->bindValue(':password', $jsonData->password);
+      $query->bindValue(':name', $name);
+      $query->bindValue(':birth', $birth);
+      $query->bindValue(':cpf', $cpf);
+      $query->bindValue(':email', $email);
+      $query->bindValue(':password', $password);
 
-        $query->execute();
+      $query->execute();
 
-        $script =
-          'INSERT INTO ' . self::USER_VALIDATION_TABLE .
-          ' (validation_code, user_id) ' .
-          'VALUES (:validation_code, (SELECT id FROM ' . self::USER_TABLE . ' WHERE email = :email));';
+      $script =
+        'INSERT INTO ' . self::USER_VALIDATION_TABLE .
+        ' (validation_code, user_id) ' .
+        'VALUES (:validation_code, (SELECT id FROM ' . self::USER_TABLE . ' WHERE email = :email));';
 
-        $query = $connection->prepare($script);
+      $query = self::$connection->prepare($script);
 
-        $query->bindValue(':validation_code', $jsonData->validation_code);
-        $query->bindValue(':email', $jsonData->email);
+      $query->bindValue(':validation_code', $validationCode);
+      $query->bindValue(':email', $email);
 
-        $query->execute();
+      $query->execute();
 
-        $sessionToken = UserSession::createSession($jsonData);
+      $sessionToken = UserSessionRepository::createSession($email);
 
-        return [
-          'status' => 200,
-          'register' => true,
-          'session_token' => $sessionToken
-        ];
-      }
-    } catch (Exception $exc) {
-      ServerError::addError($exc->getMessage());
-      ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
-    } finally {
-      self::close($connection);
+      return [
+        'status' => 'OK',
+        'register' => true,
+        'session_token' => $sessionToken
+      ];
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
+
+      return [
+        'status' => 'SERVER ERROR'
+      ];
     }
   }
 
 
-  public static function validateUser(object $jsonData)
+  public static function validateUser(string $email, string $validationCode)
   {
     try {
-      $connection = self::connect();
+      $userExists = self::checkUserExists($email);
+      if (!$userExists['exists']) {
 
-      $script = '
-        SELECT is_validated FROM ' . self::USER_TABLE .
-        ' WHERE email = :email;
-        ';
-      $query = $connection->prepare($script);
-
-      $query->bindValue(':email', $jsonData->email);
-
-      $query->execute();
-
-      if ($query->rowCount() > 0) {
-        $response = $query->fetch(PDO::FETCH_ASSOC);
-        if ($response['is_validated'] == 1) {
-          $script = '
-            SELECT validation_code FROM ' . self::USER_VALIDATION_TABLE .
-            ' WHERE user_id = (SELECT id FROM ' . self::USER_TABLE . ' WHERE email = :email);
-            ';
-
-          $query = $connection->prepare($script);
-          $query->bindValue(':email', $jsonData->email);
-          $query->execute();
-          $response = $query->fetch(PDO::FETCH_ASSOC);
-          if ($response['validation_code'] == $jsonData->validation_code) {
-
-            $script = 'UPDATE ' . self::USER_TABLE . ' SET is_validated = 2 WHERE email = :email;';
-            $query = $connection->prepare($script);
-
-            $query->bindValue(':email', $jsonData->email);
-
-            $query->execute();
-            return [
-              'status' => 200,
-              'validate' => true
-            ];
-          } else {
-            return [
-              'status' => 200,
-              'validate' => false,
-              'reason' => 'INVALID VALIDATION CODE'
-            ];
-          }
-        } else {
-          return [
-            'status' => 200,
-            'validate' => false,
-            'reason' => 'USER ALREADY VALIDATED'
-          ];
-        }
-      } else {
         return [
-          'status' => 200,
+          'status' => 'OK',
           'validate' => false,
           'reason' => 'USER NOT FOUND'
         ];
       }
+
+      $userValidated = self::checkUserValidated($email);
+      if ($userValidated['validated']) {
+
+        return [
+          'status' => 'OK',
+          'validate' => false,
+          'reason' => 'USER VALIDATED'
+        ];
+      }
+
+      $script = '
+            SELECT validation_code FROM ' . self::USER_VALIDATION_TABLE .
+        ' WHERE user_id = (SELECT id FROM ' . self::USER_TABLE . ' WHERE email = :email);
+            ';
+
+      $query = self::$connection->prepare($script);
+      $query->bindValue(':email', $jsonData->email);
+      $query->execute();
+      $response = $query->fetch(PDO::FETCH_ASSOC);
+      if ($response['validation_code'] == $jsonData->validation_code) {
+
+        $script = 'UPDATE ' . self::USER_TABLE . ' SET is_validated = 2 WHERE email = :email;';
+        $query = $connection->prepare($script);
+
+        $query->bindValue(':email', $jsonData->email);
+
+        $query->execute();
+        return [
+          'status' => 200,
+          'validate' => true
+        ];
+      } else {
+        return [
+          'status' => 200,
+          'validate' => false,
+          'reason' => 'INVALID VALIDATION CODE'
+        ];
+      }
+
     } catch (Exception $exc) {
       ServerError::addError($exc->getMessage());
       ErrorReport::displayErrorToUser(500, 'SERVER ERROR');
