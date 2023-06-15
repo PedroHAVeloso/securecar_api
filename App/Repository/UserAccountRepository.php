@@ -11,6 +11,16 @@ use Exception;
  */
 class UserAccountRepository extends Database
 {
+
+  /**
+   * Inicia sessão de usuários existentes no banco.
+   * 
+   * Retorna um array com a resposta do login.
+   * 
+   * @param string $email
+   * @param string $password
+   * @return array
+   */
   public static function loginUser(string $email, string $password): array
   {
     try {
