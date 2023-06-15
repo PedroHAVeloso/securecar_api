@@ -24,7 +24,7 @@ class UserAccountRepository extends Database
   {
     try {
       $userExists = self::checkUserExists($email);
-      if (!$userExists['exists']) {
+      if (!$userExists['exist']) {
 
         return [
           'status' => 'OK',
@@ -44,7 +44,7 @@ class UserAccountRepository extends Database
       }
 
       $script =
-        'SELECT name, birth, cpf FROM ' . self::USER_TABLE .
+        'SELECT name, birth, cpf, is_validated FROM ' . self::USER_TABLE .
         ' WHERE email = :email AND password = :password;';
 
       $query = self::$connection->prepare($script);
@@ -62,7 +62,7 @@ class UserAccountRepository extends Database
         return [
           'status' => 'OK',
           'login' => true,
-          'session_token' => $sessionToken,
+          'session_token' => $sessionToken['session_token'],
           'user' => $response
         ];
       } else {
@@ -142,7 +142,7 @@ class UserAccountRepository extends Database
       return [
         'status' => 'OK',
         'register' => true,
-        'session_token' => $sessionToken
+        'session_token' => $sessionToken['session_token']
       ];
     } catch (Exception $exception) {
       ServerErrorRepository::addError($exception);
@@ -169,7 +169,7 @@ class UserAccountRepository extends Database
   {
     try {
       $userExists = self::checkUserExists($email);
-      if (!$userExists['exists']) {
+      if (!$userExists['exist']) {
 
         return [
           'status' => 'OK',
@@ -244,7 +244,7 @@ class UserAccountRepository extends Database
   public static function checkUserValidated(string $email): array
   {
     try {
-      if (self::checkUserExists($email)['exists']) {
+      if (self::checkUserExists($email)['exist']) {
         $script =
           'SELECT is_validated FROM ' . self::USER_TABLE .
           ' WHERE email = :email;';

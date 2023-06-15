@@ -19,14 +19,14 @@ class Database
   protected const ERROR_TABLE = 'tb_server_error_log';
 
   // CONEXÃO
-  protected PDO|null $connection;
+  protected static PDO|null $connection;
 
-  private function __construct()
+  public function __construct()
   {
-    $connection = self::connect();
+    self::$connection = self::connect();
   }
 
-  private function __destruct()
+  public function __destruct()
   {
     self::close($connection);
   }
@@ -67,7 +67,7 @@ class Database
    * @param PDO $connection
    * @return null
    */
-  protected static function close(PDO &$connection): null
+  protected static function close(&$connection): null
   {
     $connection = null;
     return $connection;

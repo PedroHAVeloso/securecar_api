@@ -42,8 +42,8 @@ class ApiTokenRepository extends Database
 
         return false;
       }
-    } catch (Exception $exc) {
-      ServerErrorRepository::addError($exc);
+    } catch (Exception $exception) {
+      ServerErrorRepository::addError($exception);
       http_response_code(500);
 
       return null;

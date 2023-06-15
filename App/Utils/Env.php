@@ -6,7 +6,7 @@ class Env
 {
   public static function getEnv()
   {
-    $env = parse_ini_file('.env');
+    $env = parse_ini_file(".env");
     return $env;
   }
 }

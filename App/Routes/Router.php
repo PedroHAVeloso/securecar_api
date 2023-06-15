@@ -15,7 +15,9 @@ class Router extends Route
   public static function enterApi()
   {
     if (self::ignoreOptionRequest()) {
-      if ($validated = self::validateEntry()) {
+      $validated = self::validateEntry();
+
+      if ($validated === true) {
         self::defineRoute();
       } else {
         echo json_encode($validated);
@@ -39,7 +41,7 @@ class Router extends Route
 
     self::createRoute(
       RequestMethod::METHOD_PUT,
-      '/user/validate-user',
+      '/user/validate',
       function () {
         UserService::validateUser();
       }
@@ -92,14 +94,14 @@ class Router extends Route
   public static function validateEntry(): bool|array
   {
     $authorization = HttpHeaders::getAuthorization();
-    $authorization = ApiTokenRepository::checkApiTokenValidity($authorization);
-
-    if ($authorization == 200) {
+    $apiTokenRepository = new ApiTokenRepository;
+    $authorization = $apiTokenRepository::checkApiTokenValidity($authorization);
+    if ($authorization) {
       return true;
-    } else if ($authorization == 400) {
-      return ['status' => 'API TOKEN IS INVALID', 'status_code' => $authorization];
+    } else if (!$authorization) {
+      return ['status' => 'API TOKEN IS INVALID', 'status_code' => 400];
     } else {
-      return ['status' => 'SERVER ERROR', 'status_code' => $authorization];
+      return ['status' => 'SERVER ERROR', 'status_code' => 500];
     }
   }
 }
