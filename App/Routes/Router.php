@@ -20,6 +20,7 @@ class Router extends Route
       if ($validated === true) {
         self::defineRoute();
       } else {
+        
         echo json_encode($validated);
       }
     }
@@ -80,27 +81,35 @@ class Router extends Route
   public static function ignoreOptionRequest(): bool
   {
     if (RequestMethod::getRequestMethod() == RequestMethod::METHOD_OPTIONS) {
+      
       return false;
     } else {
+      
       return true;
     }
   }
 
   /**
-   * Valida o a authorization informado na requisição para uso
+   * Valida a authorization informado na requisição para uso
    * da API.
    * @return bool|array
    */
   public static function validateEntry(): bool|array
   {
     $authorization = HttpHeaders::getAuthorization();
+
     $apiTokenRepository = new ApiTokenRepository;
+
     $authorization = $apiTokenRepository::checkApiTokenValidity($authorization);
+
     if ($authorization) {
+
       return true;
     } else if (!$authorization) {
+
       return ['status' => 'API TOKEN IS INVALID', 'status_code' => 400];
     } else {
+
       return ['status' => 'SERVER ERROR', 'status_code' => 500];
     }
   }
