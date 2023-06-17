@@ -65,12 +65,10 @@ class Database
   /**
    * Destrói a conexão com o banco de dados.
    * 
-   * @param PDO $connection
-   * @return null
+   * @param PDO|null $connection
    */
-  protected static function close(&$connection): null
+  protected static function close(&$connection): void
   {
-    $connection = null;
-    return $connection;
+    unset($connection);
   }
 }
