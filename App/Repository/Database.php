@@ -41,7 +41,7 @@ class Database
    * 
    * @return PDO|null
    */
-  protected static function connect()
+  protected static function connect(): PDO|null
   {
     try {
       $env = Env::getEnv();
@@ -56,8 +56,9 @@ class Database
       );
 
       return $connection;
-    } catch (Exception $exc) {
-      return null;
+    } catch (Exception $exception) {
+
+      throw $exception;
     }
   }
 
