@@ -6,6 +6,7 @@ use App\Repository\ApiTokenRepository;
 use App\Services\UserService;
 use App\Utils\HttpHeaders;
 use App\Utils\RequestMethod;
+use App\Services\EmailService;
 
 class Router extends Route
 {
@@ -69,6 +70,14 @@ class Router extends Route
       '/user/close-session',
       function () {
         UserService::closeSession();
+      }
+    );
+
+    self::createRoute(
+      RequestMethod::METHOD_POST,
+      '/email/send-user-code',
+      function () {
+        EmailService::sendUserCode();
       }
     );
   }

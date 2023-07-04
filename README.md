@@ -2,11 +2,12 @@
 
 ## API do TCC SecureCar.
 - *Está em versão de teste*.
-- *v0.1.2-alpha*.
+- *v0.1.3-alpha*.
 
 
 > ## Funcionalidades atuais:
 >- Cadastro de usuário;
+>- Envio do código verificador por e-mail;
 >- Validação de usuário; 
 >- Login de usuário;
 >- Verificação de sessão;
@@ -143,3 +144,22 @@ A `api_key` é uma chave de acesso armazenada no banco de dados.
 		"status": "OK,
 		"closed": true
 	}
+
+## Envio do código verificador por e-mail
+
+#### Request
+
+`DELETE /email/send-user-code`
+
+	{
+		"email": "email",
+		"name": "name",
+		"code": 1111
+	}
+
+#### Response OK
+
+	{
+		"status": "OK
+	}
+

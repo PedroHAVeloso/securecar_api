@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Controller\UserController;
 use App\Repository\UserAccountRepository;
 use App\Repository\UserSessionRepository;
-use App\Utils\ErrorReport;
 use App\Utils\JsonData;
 
 class UserService

@@ -7,6 +7,10 @@ namespace Composer\Autoload;
 class ComposerStaticInit644b1b6f7d2f133b04ab6b6be5780110
 {
     public static $prefixLengthsPsr4 = array (
+        'P' => 
+        array (
+            'PHPMailer\\PHPMailer\\' => 20,
+        ),
         'A' => 
         array (
             'App\\' => 4,
@@ -14,6 +18,10 @@ class ComposerStaticInit644b1b6f7d2f133b04ab6b6be5780110
     );
 
     public static $prefixDirsPsr4 = array (
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
         'App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/App',
@@ -21,21 +29,6 @@ class ComposerStaticInit644b1b6f7d2f133b04ab6b6be5780110
     );
 
     public static $classMap = array (
-        'App\\Controller\\UserController' => __DIR__ . '/../..' . '/App/Controller/UserController.php',
-        'App\\Repository\\ApiTokenRepository' => __DIR__ . '/../..' . '/App/Repository/ApiTokenRepository.php',
-        'App\\Repository\\Database' => __DIR__ . '/../..' . '/App/Repository/Database.php',
-        'App\\Repository\\ServerErrorRepository' => __DIR__ . '/../..' . '/App/Repository/ServerErrorRepository.php',
-        'App\\Repository\\UserAccountRepository' => __DIR__ . '/../..' . '/App/Repository/UserAccountRepository.php',
-        'App\\Repository\\UserSessionRepository' => __DIR__ . '/../..' . '/App/Repository/UserSessionRepository.php',
-        'App\\Routes\\Route' => __DIR__ . '/../..' . '/App/Routes/Route.php',
-        'App\\Routes\\Router' => __DIR__ . '/../..' . '/App/Routes/Router.php',
-        'App\\Services\\UserService' => __DIR__ . '/../..' . '/App/Services/UserService.php',
-        'App\\Utils\\Env' => __DIR__ . '/../..' . '/App/Utils/Env.php',
-        'App\\Utils\\GenerateAleatoryString' => __DIR__ . '/../..' . '/App/Utils/GenerateAleatoryString.php',
-        'App\\Utils\\HttpHeaders' => __DIR__ . '/../..' . '/App/Utils/HttpHeaders.php',
-        'App\\Utils\\JsonData' => __DIR__ . '/../..' . '/App/Utils/JsonData.php',
-        'App\\Utils\\RequestMethod' => __DIR__ . '/../..' . '/App/Utils/RequestMethod.php',
-        'App\\Utils\\RequestUri' => __DIR__ . '/../..' . '/App/Utils/RequestUri.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 

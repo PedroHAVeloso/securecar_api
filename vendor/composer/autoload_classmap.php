@@ -6,20 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'App\\Controller\\UserController' => $baseDir . '/App/Controller/UserController.php',
-    'App\\Repository\\ApiTokenRepository' => $baseDir . '/App/Repository/ApiTokenRepository.php',
-    'App\\Repository\\Database' => $baseDir . '/App/Repository/Database.php',
-    'App\\Repository\\ServerErrorRepository' => $baseDir . '/App/Repository/ServerErrorRepository.php',
-    'App\\Repository\\UserAccountRepository' => $baseDir . '/App/Repository/UserAccountRepository.php',
-    'App\\Repository\\UserSessionRepository' => $baseDir . '/App/Repository/UserSessionRepository.php',
-    'App\\Routes\\Route' => $baseDir . '/App/Routes/Route.php',
-    'App\\Routes\\Router' => $baseDir . '/App/Routes/Router.php',
-    'App\\Services\\UserService' => $baseDir . '/App/Services/UserService.php',
-    'App\\Utils\\Env' => $baseDir . '/App/Utils/Env.php',
-    'App\\Utils\\GenerateAleatoryString' => $baseDir . '/App/Utils/GenerateAleatoryString.php',
-    'App\\Utils\\HttpHeaders' => $baseDir . '/App/Utils/HttpHeaders.php',
-    'App\\Utils\\JsonData' => $baseDir . '/App/Utils/JsonData.php',
-    'App\\Utils\\RequestMethod' => $baseDir . '/App/Utils/RequestMethod.php',
-    'App\\Utils\\RequestUri' => $baseDir . '/App/Utils/RequestUri.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
 );
