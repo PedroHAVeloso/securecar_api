@@ -149,7 +149,7 @@ A `api_key` é uma chave de acesso armazenada no banco de dados.
 
 #### Request
 
-`DELETE /email/send-user-code`
+`POST /email/send-user-code`
 
 	{
 		"email": "email",
